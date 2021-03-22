@@ -13,7 +13,7 @@ app = Flask(__name__)
 
 @app.route("/")
 def welcome():
-    return (
+ return (
         f"Welcome to the Hawaii Temps API!<br/>"
         f"Available Routes:<br/>"
         f"/api/v1.0/precipitation<br/>"
@@ -24,3 +24,9 @@ def welcome():
 
 
 
+
+
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
