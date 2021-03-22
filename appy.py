@@ -9,18 +9,18 @@ import numpy as np
 #Create engine to connect with database
 engine = create_engine("sqlite:///Resources/hawaii.sqlite")
 
-#Reflect an existing database into a new model
-Base = automap_base()
+app = Flask(__name__)
 
-#Reflect the tables
-Base.prepare(engine, reflect=True)
-
-#Save references to each table
-Measurement = Base.classes.measurement
-Station = Base.classes.station
-
-# Create session (link)  to the DB
-session = Session(engine)
+@app.route("/")
+def welcome():
+    return (
+        f"Welcome to the Hawaii Temps API!<br/>"
+        f"Available Routes:<br/>"
+        f"/api/v1.0/precipitation<br/>"
+        f"/api/v1.0/stations<br/>"
+        f"/api/v1.0/tobs<br/>"
+        f"/api/v1.0/start<br/>"
+        f"/api/v1.0/start/end<br/>")
 
 
 
