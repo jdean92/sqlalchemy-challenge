@@ -126,6 +126,62 @@ def measurement():
     
     return mas_tobs_json
 
+#/api/v1.0/<start> and /api/v1.0/<start>/<end>
+# Return a JSON list of the minimum temperature, the average temperature, and the max
+# temperature for a given start or start-end range.
+# When given the start only, calculate TMIN, TAVG, and TMAX for all dates greater than and # equal to the start date.
+# When given the start and the end date, calculate the TMIN, TAVG, and TMAX for dates 
+# between the start and end date inclusive.
+
+@app.route('/api/v1.0/<start>/<end>')
+def date_stat_bounded(start, end):
+    
+    conn = engine.connect()
+    
+    query = f'''
+        SELECT
+            MIN(tobs) AS TMIN,
+            MAX(tobs) AS TMAX,
+            AVG(tobs) AS TAVG
+        FROM
+            measurement
+        WHERE 
+            date BETWEEN '{start}' AND '{end}'
+    '''
+    
+    bounded_date_stats_df = pd.read_sql(query, conn)
+    
+    bounded_date_stats_json = bounded_date_stats_df.to_json(orient = 'records')
+    
+    conn.close()    
+    
+    return bounded_date_stats_json
+
+
+@app.route('/api/v1.0/<start>')
+def date_stat_open(start):
+    
+    conn = engine.connect()
+    
+    query = f'''
+        SELECT
+            MIN(tobs) AS TMIN,
+            MAX(tobs) AS TMAX,
+            AVG(tobs) AS TAVG
+        FROM
+            measurement
+        WHERE 
+            date >= '{start}'
+    '''
+    
+    open_date_stats_df = pd.read_sql(query, conn)
+    
+    open_date_stats_json = open_date_stats_df.to_json(orient = 'records')
+    
+    conn.close()    
+    
+    return open_date_stats_json
+
 
 
 
