@@ -82,7 +82,49 @@ def station():
     
     return active_stations_json
     
-
+@app.route('/api/v1.0/tobs')
+def measurement():
+    
+    conn = engine.connect()
+    
+    query = '''
+        SELECT
+            s.station AS station_code,
+            s.name AS station_name,
+            COUNT(*) AS station_count
+        FROM
+            measurement m
+        INNER JOIN station s
+        ON m.station = s.station
+        GROUP BY
+            s.station,
+            s.name
+        ORDER BY 
+            station_count DESC
+    '''
+    active_stations_df = pd.read_sql(query, conn)
+    active_stations_df.sort_values('station_count', ascending=False, inplace=True)
+    most_active_station = active_stations_df['station_code'].values[0]
+    
+    query = f'''
+        SELECT
+            tobs
+        FROM
+            measurement
+        WHERE 
+            station = '{most_active_station}'
+            
+            AND
+            
+            date >= (SELECT DATE(MAX(date), '-1 year') FROM measurement)
+    '''
+    mas_tobs_df = pd.read_sql(query, conn)
+    
+    mas_tobs_json = mas_tobs_df.to_json(orient = 'records')
+    
+    conn.close()
+    
+    return mas_tobs_json
 
 
 
