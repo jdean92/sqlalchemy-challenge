@@ -23,6 +23,39 @@ def welcome():
         f"/api/v1.0/start/end<br/>")
 
 
+@app.route("/api/v1.0/precipitation")
+def percipitation():
+    
+    conn = engine.connect()
+    
+    query = '''
+        SELECT
+            date,
+            AVG(prcp) as avg_prcp
+        FROM
+            measurement
+        WHERE
+            date >= (SELECT DATE(MAX(date), '-1 year') FROM measurement)
+        GROUP BY
+            date
+        ORDER BY
+            date
+'''
+
+    prcp_df = pd.read_sql(query, conn)
+
+    prcp_df['date'] = pd.to_datetime(prcp_df['date'])
+
+    prcp_df.sort_values('date')
+
+#    prcp_df.set_index('date', inplace = True)
+    
+    prcp_json = prcp_df.to_json(orient = 'records', date_format = 'iso')
+        
+    conn.close()
+    
+    return prcp_json
+
 
 
 
